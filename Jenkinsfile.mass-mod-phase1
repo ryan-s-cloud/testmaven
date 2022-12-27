@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+    tools {
+        maven "Maven3"
+    }
+    parameters {
+        choice(
+            description: 'Which environment do you want to test?',
+            choices: ['loadtest', 'qa'],
+            name: 'test_environment'
+        )
+        string(
+            description: 'Which domain do you want to test?',
+            defaultValue: 'abc30release',
+            name: 'test_domain'
+        )
+        string(
+            description: 'Output folder to write CSV files to',
+            defaultValue: './output',
+            name: 'test_output_folder'
+        )
+        string(
+            description: 'Basic auth base64 string to be used to generate tokens',
+            defaultValue: 'QVVUT01BVEVEX1RFU1RJTkc6dDNzdEBsbHRoM3RoMW5ncw==',
+            name: 'test_basic_auth_string'
+        )
+    }
+    stages {
+        stage('Compile Java utility') {
+            steps {
+                echo 'Compiling using Maven....'
+                sh "mvn clean install"
+            }
+        }
+        stage('Mass Modification Phase1 Test') {
+            steps {
+                script {
+                   if (!test_environment?.trim()) test_environment = 'loadtest';
+                   if (!test_domain?.trim()) test_domain = 'abc30release';
+                }
+
+                sh "[ ! -d ${test_output_folder} ] && mkdir -p ${test_output_folder}"
+
+                echo 'Running Mass Modification Phase1 Test ...'
+                sh """\
+                   java -cp          target/classes \
+                                     org.abc.perftest.Main \
+                        --server     ${test_environment}.${test_domain}.com \
+                        --basic-auth ${test_basic_auth_string} \
+                        --output-dir ${test_output_folder} \
+                   """.replaceAll( ' +', ' ' )
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: '${test_output_folder}/*.csv,*.log', fingerprint: true
+        }
+    }
+}
