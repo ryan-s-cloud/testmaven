@@ -161,7 +161,7 @@ public class Main {
             long totalMembers = 0;
             MemberResponse m = getMembers(options, token, page, size);
             while (++page < m.totalPages) {
-                totalMembers += m.content.size()
+                totalMembers += m.content.size();
                 csv.writeRecords(formatCsvRecords(m.content, startDate, endDate));
                 if (totalMembers > 20000) break;
                 Instant end = Instant.now();
