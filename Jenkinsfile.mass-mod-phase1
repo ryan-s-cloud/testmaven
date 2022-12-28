@@ -39,7 +39,7 @@ pipeline {
                    if (!test_domain?.trim()) test_domain = 'abc30release';
                 }
 
-                sh "[ ! -d ${test_output_folder} ] && mkdir -p ${test_output_folder}"
+                sh "mkdir -p ${test_output_folder}"
 
                 echo 'Running Mass Modification Phase1 Test ...'
                 sh """\
