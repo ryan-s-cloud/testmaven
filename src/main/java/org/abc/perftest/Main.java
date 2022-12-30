@@ -163,7 +163,7 @@ public class Main {
             while (++page < m.totalPages) {
                 totalMembers += m.content.size();
                 csv.writeRecords(formatCsvRecords(m.content, startDate, endDate));
-                if (totalMembers > 20000) break;
+                if (totalMembers >= 2000) break;
                 Instant end = Instant.now();
                 Duration interval = Duration.between(start, end);
                 if (interval.getSeconds() > 13*60) {
